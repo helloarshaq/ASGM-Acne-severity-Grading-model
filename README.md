@@ -28,4 +28,44 @@ A model for grading severity on Acne images.
 ---
 
 ## 📂 Repository Structure
+ASGM-AcneSeverityGrading/
+├─ app.py # FastAPI server for inference
+├─ inference.py # CLI/SDK script to grade a single image
+├─ metrics.py # Test‐split evaluation: classification report & confusion matrix
+├─ model/
+│ └─ student_best.pth # Trained student weights (~6 MB)
+├─ requirements.txt # pip install -r requirements.txt
+├─ LICENSE # MIT License
+├─ README.md # This file
+└─ utils/
+├─ dataset.py # Dataset class & DataLoader (ACNE04 CSV → PyTorch)
+├─ models.py # TeacherNet (ResNet‐34) & StudentNet (MobileNetV3‐Small) definitions
+├─ train.py # Script to train teacher & student (distillation)
+└─ transforms.py # Albumentations pipelines for train/val/test
+
+---
+
+## 🚀 Quick Start
+
+### 0. Prerequisites
+
+- Python 3.8+  
+- Linux/macOS/Windows (Linux or macOS recommended)  
+- GPU + CUDA (optional; CPU works for inference only)  
+- ~5 GB disk space for model & data
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/<your-username>/ASGM-AcneSeverityGrading.git
+cd ASGM-AcneSeverityGrading
+
+# (Optional) Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate   # macOS/Linux
+.\venv\Scripts\activate    # Windows PowerShell
+
+# Install dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
 
