@@ -68,4 +68,88 @@ source venv/bin/activate   # macOS/Linux
 # Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
+```
+2. Download & Prepare ACNE04
+Download ACNE04 from Kaggle into data/ACNE04/raw/.
 
+Unzip so you have:
+
+```swift
+data/ACNE04/raw/acne0_1024/
+data/ACNE04/raw/acne1_1024/
+data/ACNE04/raw/acne2_1024/
+data/ACNE04/raw/acne3_1024/
+```
+Run the split script to generate CSVs:
+
+```bash
+python utils/dataset.py \
+  --raw_dir data/ACNE04/raw \
+  --out_dir data/ACNE04/splits \
+  --split 0.70 0.15 0.15
+```
+This produces:
+
+```kotlin
+data/ACNE04/splits/train.csv
+data/ACNE04/splits/val.csv
+data/ACNE04/splits/test.csv
+```
+3. Train Teacher & Student
+```bash
+# 3A: Train ResNet‐34 teacher
+python utils/train.py --mode teacher \
+  --train_csv data/ACNE04/splits/train.csv \
+  --val_csv   data/ACNE04/splits/val.csv \
+  --img_root  data/ACNE04/raw \
+  --epochs    100 \
+  --batch     32 \
+  --lr        1e-3 \
+  --save_dir  model/teacher_checkpoints
+````
+# 3B: Distill to MobileNetV3‐Small student
+python utils/train.py --mode student \
+  --train_csv    data/ACNE04/splits/train.csv \
+  --val_csv      data/ACNE04/splits/val.csv \
+  --img_root     data/ACNE04/raw \
+  --teacher_ckpt model/teacher_checkpoints/best_teacher.pth \
+  --epochs       200 \
+  --batch        64 \
+  --lr           2e-4 \
+  --alpha        0.5 \
+  --temp         4.0 \
+  --save_dir     model/student_checkpoints
+Teacher mode: trains on ground‐truth grades using ResNet‐34.
+
+Student mode: uses KL‐divergence + CE loss to distill from teacher, saving best weights to model/student_checkpoints/best_student.pth.
+
+4. Evaluate on Test Split
+```bash
+python metrics.py \
+  --test_csv     data/ACNE04/splits/test.csv \
+  --img_root     data/ACNE04/raw \
+  --student_ckpt model/student_checkpoints/best_student.pth
+```
+Outputs:
+
+Overall Test Accuracy
+
+Classification Report (precision, recall, F1, support per class + averages)
+
+Confusion Matrix (plotted as a heatmap)
+
+🖥️ Inference (Single Image)
+Use inference.py to grade a single image from the command line:
+
+```bash
+python inference.py \
+  --model_path model/student_checkpoints/best_student.pth \
+  --img_path   /path/to/your_face.jpg
+```
+Expected output:
+
+```pgsql
+Loaded model from model/student_checkpoints/best_student.pth
+Input image: /path/to/your_face.jpg
+Predicted acne grade: 2
+```
