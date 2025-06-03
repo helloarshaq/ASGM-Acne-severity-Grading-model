@@ -1,44 +1,31 @@
 # ────────────────────────────────────────────────────────────────────────────
-# 1) Use a minimal Python base image (slim) to keep the image small
+# Dockerfile for ASGM (CPU-only, < 4 GB)
+# ────────────────────────────────────────────────────────────────────────────
 FROM python:3.9-slim
 
-# Prevent Python from writing .pyc files and ensure stdout/stderr are unbuffered
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+# Our service will always listen on 8000
+ENV PORT 8000   
 
-# ────────────────────────────────────────────────────────────────────────────
-# 2) Install system dependencies needed for OpenCV, etc.
+# --- system deps for OpenCV -------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
-       git \
-       libgl1 \
-       libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+      libgl1 libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
 
-# ────────────────────────────────────────────────────────────────────────────
-# 3) Create and switch to the working directory
 WORKDIR /app
 
-# ────────────────────────────────────────────────────────────────────────────
-# 4) Copy requirements file first (to leverage Docker layer caching)
+# --- install python deps ----------------------------------------------------
 COPY requirements.txt .
-
-# ────────────────────────────────────────────────────────────────────────────
-# 5) Install Python dependencies
-#    - First install CPU‐only PyTorch and torchvision (to keep image size < 4 GB)
-#    - Then install everything in requirements.txt
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir torch==2.0.0+cpu torchvision==0.15.1+cpu \
-       --index-url https://download.pytorch.org/whl/cpu && \
+      --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r requirements.txt
 
-# ────────────────────────────────────────────────────────────────────────────
-# 6) Copy all application files into the container
+# --- copy code --------------------------------------------------------------
 COPY . .
 
-# ────────────────────────────────────────────────────────────────────────────
-# 7) Expose port 8000 (Railway will map $PORT to this)
 EXPOSE 8000
 
-# ────────────────────────────────────────────────────────────────────────────
-# 8) Start the FastAPI app via Uvicorn, using shell form so $PORT is expanded
+# Shell-form CMD so $PORT expands (we set it to 8000 above)
 CMD uvicorn app:app --host 0.0.0.0 --port $PORT
