@@ -13,8 +13,8 @@ from albumentations.pytorch import ToTensorV2
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 1) SETTINGS: adjust paths
-ROOT       = "/content/drive/MyDrive/ded_acne"          # or wherever your model lives
-MODEL_PATH = os.path.join(ROOT, "runs/student_best.pth")
+ROOT = os.path.dirname(__file__)
+MODEL_PATH = os.path.join(ROOT, "model", "student_best.pth")
 DEVICE     = "cuda" if torch.cuda.is_available() else "cpu"
 
 # ──────────────────────────────────────────────────────────────────────────────
