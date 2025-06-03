@@ -1,9 +1,8 @@
-torch
-torchvision
-timm
-albumentations
-opencv-python
 fastapi
 uvicorn
-scikit-learn
+torch==2.0.0+cpu      -f https://download.pytorch.org/whl/cpu
+torchvision==0.15.1+cpu -f https://download.pytorch.org/whl/cpu
+timm
+albumentations
+opencv-python-headless
 python-multipart
