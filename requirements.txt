@@ -1,8 +1,16 @@
-fastapi
-uvicorn
-torch==2.0.0+cpu      -f https://download.pytorch.org/whl/cpu
-torchvision==0.15.1+cpu -f https://download.pytorch.org/whl/cpu
-timm
-albumentations
-opencv-python-headless
-python-multipart
+# --- Extra index for CPU-only PyTorch wheels ----------
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Core
+fastapi==0.110.2
+uvicorn[standard]==0.29.0
+
+# DL stack (CPU only)
+torch==2.0.0+cpu
+torchvision==0.15.1+cpu
+timm==0.9.12
+
+# Pre-processing
+albumentations==2.0.8
+opencv-python-headless==4.11.0.86
+python-multipart==0.0.9
