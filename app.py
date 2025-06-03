@@ -13,9 +13,9 @@ from albumentations.pytorch import ToTensorV2
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 1) SETTINGS: adjust paths
-ROOT = os.path.dirname(__file__)
+ROOT = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(ROOT, "model", "student_best.pth")
-DEVICE     = "cuda" if torch.cuda.is_available() else "cpu"
+model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 2) Define the student architecture (same as before)
